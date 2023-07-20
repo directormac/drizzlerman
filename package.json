@@ -1,0 +1,26 @@
+{
+  "name": "drizzlerman",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "clear && nodemon --ignore '**/*.test.ts' --quiet --watch src src/index.ts",
+    "tsx": "tsx watch src/index.ts",
+    "test": "vitest --ui"
+  },
+  "keywords": [],
+  "author": "",
+  "devDependencies": {
+    "@swc/cli": "^0.1.62",
+    "@swc/core": "^1.3.70",
+    "@swc/helpers": "^0.5.1",
+    "@vitest/ui": "^0.33.0",
+    "nodemon": "^3.0.1",
+    "regenerator-runtime": "^0.13.11",
+    "ts-node": "^10.9.1",
+    "tsx": "^3.12.7",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.5",
+    "vitest": "^0.33.0"
+  }
+}
