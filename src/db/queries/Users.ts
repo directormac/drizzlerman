@@ -91,44 +91,7 @@ const insertUser = async (
 };
 
 // Queries
-export const createUser = async (
-  user: CreateUser
-): Promise<User | CustomResponse> => {
-  return new Promise(async (resolve) => {
-    const userAddress = await insertAddress({ ...user.address });
-    const newUser = await insertUser({
-      ...user,
-      address: userAddress?.id && 0,
-    });
-
-    try {
-      const {} = await insertAddress({ ...user.address });
-
-      if (userAddress) {
-        const newUser = db
-          .insert(users)
-          .values({
-            ...user,
-            address: userAddress.id,
-          })
-          .returning()
-          .get();
-      }
-
-      const data = getUserById.execute({ id: newUser.id });
-      if (data === undefined) {
-        return { message: "Failed to create user" };
-      } else {
-        return data;
-      }
-    } catch (err: any) {
-      const error = err as SqliteError;
-      return {
-        message: error.toString(),
-      };
-    }
-  });
-};
+export const createUser = async (user: CreateUser) => {};
 
 // Might be a little bit overkill, but we should handle errors in ways that make sense for our application
 // We dont want undefined , nulls or errors to be returned to the client
