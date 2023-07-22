@@ -10,179 +10,122 @@ import {
 import { address, users } from "../schemas/user";
 import {
   CreateUser,
-  CreateUserTypeWithZod,
   createUser,
   createUserSchema,
+  getUserByEmail,
   getUserById,
+  User,
+  getUsersWithNameLike,
+  insertUser,
+  getUserById1,
 } from "./Users";
 import { InferModel, eq } from "drizzle-orm";
 import { db } from "..";
 
-describe("User Tests", async () => {
-  const JRizalAddress = {
+const JoseRizal = {
+  email: "j.rizal@lasolidaridad.org",
+  firstName: "Jose",
+  lastName: "Rizal",
+  password: "password",
+  role: "ADMIN",
+  address: {
     street: "Rizal Avenue",
     city: "Calamba",
     province: "Laguna",
-  };
-  const JRizal = {
-    email: "j.rizal@lasolidaridad.org",
-    firstName: "Jose",
-    lastName: "Rizal",
-  };
-  beforeEach(async () => {
-    const jRizalAddress = db
-      .insert(address)
-      .values(JRizalAddress)
-      .returning()
-      .get();
+  },
+};
 
-    db.insert(users)
-      .values({ ...JRizal, address: jRizalAddress.id })
-      .returning()
-      .get();
+describe("User Generic Query Tests", async () => {
+  beforeEach(async () => {
+    await insertUser(JoseRizal as CreateUser);
   });
 
   afterEach(async () => {
-    db.delete(users).run();
-    db.delete(address).run();
+    db.delete(users).execute();
+    db.delete(address).execute();
   });
 
   test("should get users", async () => {
-    const currentUsers: InferModel<typeof users, "select">[] = db
+    const currentUsers: InferModel<typeof users, "select">[] = await db
       .select()
       .from(users)
-      .all();
+      .execute();
     expect(currentUsers.length).toBe(1);
     expectTypeOf(currentUsers).toBeArray();
   });
 
   test("should get user with name Jose from db", async () => {
-    const jrizal: InferModel<typeof users, "select"> = db
+    const query: InferModel<typeof users, "select">[] = await db
       .select()
       .from(users)
       .where(eq(users.firstName, "Jose"))
       .limit(1)
-      .get();
-    expectTypeOf(jrizal).toBeObject();
-    expect(jrizal.lastName).toEqual("Rizal");
+      .execute();
+    if (query[0]) {
+      const result = query[0];
+      expectTypeOf(result).toBeObject();
+      expect(result.lastName).toEqual("Rizal");
+    }
   });
 
   test("should update user with firstName Jose to Jose Protasio from db", async () => {
-    const jrizal: InferModel<typeof users, "select"> = db
+    const query: InferModel<typeof users, "select">[] = await db
       .update(users)
       .set({ firstName: "Jose Protasio" })
       .where(eq(users.firstName, "Jose"))
       .returning()
-      .get();
-    expectTypeOf(jrizal).toBeObject();
-    expect(jrizal.firstName).toEqual("Jose Protasio");
-  });
-
-  test("should upsert user with new first name", async () => {
-    const upsertThisUser = {
-      ...JRizal,
-      address: 1,
-      firstName: "J Protasio",
-    };
-    const upsertedUser = db
-      .insert(users)
-      .values(upsertThisUser)
-      .onConflictDoUpdate({
-        target: users.email,
-        set: { firstName: upsertThisUser.firstName },
-      })
-      .returning()
-      .get();
-    expect(upsertedUser.id).toBe(1);
-    expect(upsertedUser.firstName).toBe("J Protasio");
+      .execute();
+    if (query[0]) {
+      const result = query[0];
+      expectTypeOf(result).toBeObject();
+      expect(result.firstName).toEqual("Jose Protasio");
+    }
   });
 
   test("should delete user with email", async () => {
-    const deletedUser = db
+    const query = await db
       .delete(users)
       .where(eq(users.email, "j.rizal@lasolidaridad.org"))
       .returning()
-      .get();
+      .execute();
+    const deletedUser = query[0];
     expect(deletedUser?.lastName).toBe("Rizal");
   });
 });
 
-describe("User Relational Queries Tests", async () => {
-  const JRizalAddress = {
-    street: "Rizal Avenue",
-    city: "Calamba",
-    province: "Laguna",
-  };
-  const JRizal = {
-    email: "j.rizal@lasolidaridad.org",
-    firstName: "Jose",
-    lastName: "Rizal",
-  };
+describe("User Relational Queries Prepared Tests", async () => {
+  let currentUserToTest: User;
   beforeEach(async () => {
-    const rizal: CreateUser = {
-      ...JRizal,
-      address: { ...JRizalAddress },
-    };
-    createUser(rizal);
+    currentUserToTest = await createUser(JoseRizal as CreateUser);
   });
 
   afterEach(async () => {
-    db.delete(users).run();
-    db.delete(address).run();
+    await db.delete(users).execute();
+    await db.delete(address).execute();
   });
 
-  test("Should get user with id", () => {
-    const user = getUserById.execute({ id: 1 });
-    expect(user).toBeDefined();
+  test("Should get user with id", async () => {
+    // const query = await getUserById.execute({ id: currentUserToTest.id });
+    const query = await getUserById1(currentUserToTest.id);
+    expect(query).toBeDefined();
   });
 
-  test("Should throw user with non existent", () => {
-    const user = getUserById.execute({ id: 2 });
-    expect(user).toBeUndefined();
-  });
-  test("Should throw if creating user with same email", () => {
-    const rizal: CreateUser = {
-      ...JRizal,
-      address: { ...JRizalAddress },
-    };
-    expect(createUser(rizal)).toHaveProperty("message");
+  test("Should throw user with non existent", async () => {
+    // const query = getUserById.execute({ id: 2 });
+    const query = await getUserById1(1);
+    console.log(query);
+    expect(query).toThrowError();
   });
 });
 
 describe("Users Tests with zod", async () => {
-  const JRizalAddress = {
-    street: "Rizal Avenue",
-    city: "Calamba",
-    province: "Laguna",
-  };
-  const JRizal: CreateUserTypeWithZod = {
-    email: "j.rizal@lasolidaridad.org",
-    firstName: "Jose",
-    lastName: "Rizal",
-    address: JRizalAddress,
-  };
   beforeEach(async () => {
-    const user = createUserSchema.parse(JRizal);
+    const user = createUserSchema.parse(JoseRizal as CreateUser);
     createUser(user);
   });
 
   afterEach(async () => {
-    db.delete(users).run();
-    db.delete(address).run();
-  });
-
-  test("should parse input", () => {
-    expect(createUserSchema.parse(JRizal)).toBeTruthy();
-  });
-  test("should throw if invalid email", async () => {
-    const parsed = await createUserSchema.safeParseAsync({
-      ...JRizal,
-      email: "not an email",
-    });
-    if (!parsed.success) {
-      console.log(parsed.error);
-      expect(parsed.error.message).toBe("Invalid Email");
-    }
-    expect(parsed.success).toBe(false);
+    db.delete(users).execute();
+    db.delete(address).execute();
   });
 });

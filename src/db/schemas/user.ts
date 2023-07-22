@@ -1,26 +1,31 @@
 import { relations } from "drizzle-orm";
 import {
-  sqliteTable,
-  text,
-  integer,
+  pgTable,
+  serial,
+  varchar,
   uniqueIndex,
-} from "drizzle-orm/sqlite-core";
+  integer,
+} from "drizzle-orm/pg-core";
 
-export const address = sqliteTable("address", {
-  id: integer("id").primaryKey(),
-  street: text("street"),
-  city: text("city"),
-  province: text("province"),
+export const address = pgTable("address", {
+  id: serial("id").primaryKey(),
+  street: varchar("street").default(""),
+  city: varchar("city").default(""),
+  province: varchar("province").default(""),
 });
 
-export const users = sqliteTable(
+export const users = pgTable(
   "users",
   {
-    id: integer("id").primaryKey(),
-    email: text("email").notNull(),
-    firstName: text("firstName").notNull(),
-    lastName: text("lastName").notNull(),
-    address: integer("address_id").notNull(),
+    id: serial("id").primaryKey(),
+    email: varchar("email").notNull(),
+    password: varchar("password").notNull(),
+    firstName: varchar("firstName").notNull(),
+    lastName: varchar("lastName").notNull(),
+    address: integer("address_id")
+      .notNull()
+      .references(() => address.id),
+    role: varchar("role", { enum: ["ADMIN", "USER", "GUEST"] }).default("USER"),
   },
   (users) => {
     return {
