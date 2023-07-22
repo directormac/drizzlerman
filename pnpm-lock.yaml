@@ -7,10 +7,13 @@ settings:
 dependencies:
   drizzle-orm:
     specifier: ^0.27.2
-    version: 0.27.2(@types/better-sqlite3@7.6.4)(better-sqlite3@8.5.0)
+    version: 0.27.2(@types/better-sqlite3@7.6.4)(better-sqlite3@8.5.0)(postgres@3.3.5)
   drizzle-zod:
     specifier: ^0.4.4
     version: 0.4.4(drizzle-orm@0.27.2)(zod@3.21.4)
+  postgres:
+    specifier: ^3.3.5
+    version: 3.3.5
   zod:
     specifier: ^3.21.4
     version: 3.21.4
@@ -1184,7 +1187,7 @@ packages:
       - supports-color
     dev: true
 
-  /drizzle-orm@0.27.2(@types/better-sqlite3@7.6.4)(better-sqlite3@8.5.0):
+  /drizzle-orm@0.27.2(@types/better-sqlite3@7.6.4)(better-sqlite3@8.5.0)(postgres@3.3.5):
     resolution: {integrity: sha512-ZvBvceff+JlgP7FxHKe0zOU9CkZ4RcOtibumIrqfYzDGuOeF0YUY0F9iMqYpRM7pxnLRfC+oO7rWOUH3T5oFQA==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
@@ -1248,6 +1251,7 @@ packages:
     dependencies:
       '@types/better-sqlite3': 7.6.4
       better-sqlite3: 8.5.0
+      postgres: 3.3.5
     dev: false
 
   /drizzle-zod@0.4.4(drizzle-orm@0.27.2)(zod@3.21.4):
@@ -1256,7 +1260,7 @@ packages:
       drizzle-orm: '>=0.23.13'
       zod: '*'
     dependencies:
-      drizzle-orm: 0.27.2(@types/better-sqlite3@7.6.4)(better-sqlite3@8.5.0)
+      drizzle-orm: 0.27.2(@types/better-sqlite3@7.6.4)(better-sqlite3@8.5.0)(postgres@3.3.5)
       zod: 3.21.4
     dev: false
 
@@ -2013,6 +2017,10 @@ packages:
       picocolors: 1.0.0
       source-map-js: 1.0.2
     dev: true
+
+  /postgres@3.3.5:
+    resolution: {integrity: sha512-+JD93VELV9gHkqpV5gdL5/70HdGtEw4/XE1S4BC8f1mcPmdib3K5XsKVbnR1XcAyC41zOnifJ+9YRKxdIsXiUw==}
+    dev: false
 
   /prebuild-install@7.1.1:
     resolution: {integrity: sha512-jAXscXWMcCK8GgCoHOfIr0ODh5ai8mj63L2nWrjuAgXE6tDyYGnx4/8o/rCgU+B4JSyZBKbeZqzhtwtC3ovxjw==}

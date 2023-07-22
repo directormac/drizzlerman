@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "generate": "drizzle-kit generate:sqlite",
-    "migrate": "drizzle-kit push:sqlite",
+    "generate": "drizzle-kit generate:pg",
+    "migrate": "drizzle-kit push:pg",
     "studio": "drizzle-kit studio",
     "drop": "drizzle-kit drop",
     "dev": "clear && nodemon --ignore '**/*.test.ts' --quiet --watch src src/index.ts",
@@ -34,6 +34,7 @@
   "dependencies": {
     "drizzle-orm": "^0.27.2",
     "drizzle-zod": "^0.4.4",
+    "postgres": "^3.3.5",
     "zod": "^3.21.4"
   }
 }
